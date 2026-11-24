@@ -11,11 +11,6 @@
 #         elegimos siguiente mejor index
 
 
-# [0110000001110001110] -> check L+1 izq y derecha. Luego ver donde estan los 1s mas proximos con limite U+1.
-
-# ((izq,null)(dr,3)) -> puedes crear rangos a la derecha hasta i+2 solamente
-# es decir, podemos crear rangos de longitud 2, 3, 4, 5, 6 hacia la izq y 2 hacia la derecha conteniendo a i
-
 def time_stamp(N):
     time_stamp = [0 for _ in range(N)]
     return time_stamp
@@ -76,21 +71,48 @@ class Problem:
                 ranges.append((start, end))
 
         return ranges
-    def iterate(self):
-        # checking indexes left
-        profit = 0
-        while(profit<self.T):
-            indexes_left = [item for item in self.sorted_ratios if item not in used_indexes]
+    def iterate(self, T):
+        # count current profit
+        profit = sum(p for p, on in zip(self.P, self.time_stamp) if on == 1)
 
-            # best index from left
+        while profit < T: 
+
+            indexes_left = [
+                idx for idx, ratio in self.sorted_ratios
+                if idx not in self.used_indexes
+            ]
+
+            if not indexes_left:
+                raise ValueError(
+                    f"El greedy se quedó sin índices con beneficio {profit}. "
+                    f"El objetivo era {T}."
+                )
+
             best_index = indexes_left[0]
+            self.used_indexes[best_index] = True
 
-            # left, right limits and if its a candidate
             left, right, is_candidate = self._is_candidate(best_index)
-            if (is_candidate):
-                ranges = self._possible_ranges(idx, left, right, is_candidate)
-            else:
-                pass
+            if not is_candidate:
+                continue
+
+            ranges = self._possible_ranges(best_index, left, right, is_candidate)
+
+            # chose best range score.
+            best_score = -1
+            best_range = None
+            for start, end in ranges:
+                score = sum(self.ratios[i][1] for i in range(start, end + 1))
+                if score > best_score:
+                    best_score = score
+                    best_range = (start, end)
+
+            start, end = best_range
+            for i in range(start, end + 1):
+                self.time_stamp[i] = 1
+                self.used_indexes[i] = True
+                profit += self.P[i]
+
+        return profit
             
              
             
@@ -117,3 +139,18 @@ if __name__ == "__main__":
     assert problema._possible_ranges(2, left, right, is_candidate) == []
 
     print("Tests passed. Valid ranges for index 4:", ranges)
+
+
+
+
+    T = 14
+    profit = problema.iterate(T)
+    energy = sum(e for e, on in zip(E, problema.time_stamp) if on == 1)
+
+    print("Stamp final:", problema.time_stamp)
+    print("Beneficio:", profit)
+    print("Energía:", energy)
+
+    assert problema.time_stamp == [1, 1, 0, 1, 1, 1, 0, 1, 1]
+    assert profit == 14
+    assert energy == 14
