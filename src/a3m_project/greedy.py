@@ -14,6 +14,7 @@
 def time_stamp(N):
     time_stamp = [0 for _ in range(N)]
     return time_stamp
+
 class Problem:
 
     def _ratio_of_arrays(self):
@@ -160,14 +161,15 @@ class Problem:
 import random
 
 
-stamp = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-P =     [1, 1, 1, 1, 8, 1, 1, 1, 1]
-
+stamp = time_stamp(150)
+P = [random.randint(1, 10) for _ in stamp]
 E = [random.randint(1, 10) for _ in stamp]
 print("E is ", E)
-L=2
-U=5
-T=13
+print("P is ", P)
+L=7
+U=16
+T=500
 problema = Problem(stamp,L, U, P, E, T)
 problema.iterate()
-print(problema.time_stamp)
+print("--------------------")
+print("RESULTADO:", problema.time_stamp)
