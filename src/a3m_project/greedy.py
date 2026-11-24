@@ -71,6 +71,7 @@ class Problem:
                 ranges.append((start, end))
 
         return ranges
+        
     def iterate(self, T):
         # count current profit
         profit = sum(p for p, on in zip(self.P, self.time_stamp) if on == 1)
@@ -97,7 +98,7 @@ class Problem:
 
             ranges = self._possible_ranges(best_index, left, right, is_candidate)
 
-            # chose best range score.
+            # chose best range score
             best_score = -1
             best_range = None
             for start, end in ranges:
@@ -138,7 +139,7 @@ if __name__ == "__main__":
     assert not is_candidate
     assert problema._possible_ranges(2, left, right, is_candidate) == []
 
-    print("Tests passed. Valid ranges for index 4:", ranges)
+    print("tests passed, valid ranges for index 4:", ranges)
 
 
 
@@ -147,9 +148,9 @@ if __name__ == "__main__":
     profit = problema.iterate(T)
     energy = sum(e for e, on in zip(E, problema.time_stamp) if on == 1)
 
-    print("Stamp final:", problema.time_stamp)
-    print("Beneficio:", profit)
-    print("Energía:", energy)
+    print("final stamp:", problema.time_stamp)
+    print("profit:", profit)
+    print("energy:", energy)
 
     assert problema.time_stamp == [1, 1, 0, 1, 1, 1, 0, 1, 1]
     assert profit == 14
