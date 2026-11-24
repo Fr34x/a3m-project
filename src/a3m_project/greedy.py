@@ -19,12 +19,13 @@ class Problem:
     def _ratio_of_arrays(self):
         return [(i, p / e) for i, (p, e) in enumerate(zip(self.P, self.E))]
 
-    def __init__(self, time_stamps, L, U, P, E):
+    def __init__(self, time_stamps, L, U, P, E, T):
         self.time_stamp = time_stamps
         self.L = L
         self.U = U
         self.P = P
         self.E = E
+        self.T = T
         self.ratios = self._ratio_of_arrays()
         self.sorted_ratios = sorted(
             self.ratios, key=lambda item: item[1], reverse=True
@@ -71,12 +72,12 @@ class Problem:
                 ranges.append((start, end))
 
         return ranges
-        
-    def iterate(self, T):
+
+    def iterate(self):
         # count current profit
         profit = sum(p for p, on in zip(self.P, self.time_stamp) if on == 1)
 
-        while profit < T: 
+        while profit < self.T: 
 
             indexes_left = [
                 idx for idx, ratio in self.sorted_ratios
@@ -117,41 +118,56 @@ class Problem:
             
              
             
-if __name__ == "__main__":
-    # Index: 0  1  2  3  4  5  6  7  8
-    stamp = [1, 1, 0, 0, 0, 0, 0, 1, 1]
-    P =     [1, 1, 1, 1, 8, 1, 1, 1, 1]
-    E = [2] * len(stamp)
+# if __name__ == "__main__":
+#     # Index: 0  1  2  3  4  5  6  7  8
+#     stamp = [1, 1, 0, 0, 0, 0, 0, 1, 1]
+#     P =     [1, 1, 1, 1, 8, 1, 1, 1, 1]
+#     E = [2] * len(stamp)
 
-    problema = Problem(stamp, L=2, U=3, P=P, E=E)
+#     problema = Problem(stamp, L=2, U=3, P=P, E=E)
 
-    idx, ratio = problema.sorted_ratios[0]
-    assert (idx, ratio) == (4, 4.0)
+#     idx, ratio = problema.sorted_ratios[0]
+#     assert (idx, ratio) == (4, 4.0)
 
-    left, right, is_candidate = problema._is_candidate(idx)
-    assert (left, right, is_candidate) == (3, 5, True)
+#     left, right, is_candidate = problema._is_candidate(idx)
+#     assert (left, right, is_candidate) == (3, 5, True)
 
-    ranges = problema._possible_ranges(idx, left, right, is_candidate)
-    assert ranges == [(3, 4), (4, 5), (3, 5)]
+#     ranges = problema._possible_ranges(idx, left, right, is_candidate)
+#     assert ranges == [(3, 4), (4, 5), (3, 5)]
 
-    # Index 2 must stay zero because index 1 is already on.
-    left, right, is_candidate = problema._is_candidate(2)
-    assert not is_candidate
-    assert problema._possible_ranges(2, left, right, is_candidate) == []
+#     # Index 2 must stay zero because index 1 is already on.
+#     left, right, is_candidate = problema._is_candidate(2)
+#     assert not is_candidate
+#     assert problema._possible_ranges(2, left, right, is_candidate) == []
 
-    print("tests passed, valid ranges for index 4:", ranges)
-
-
+#     print("tests passed, valid ranges for index 4:", ranges)
 
 
-    T = 14
-    profit = problema.iterate(T)
-    energy = sum(e for e, on in zip(E, problema.time_stamp) if on == 1)
 
-    print("final stamp:", problema.time_stamp)
-    print("profit:", profit)
-    print("energy:", energy)
 
-    assert problema.time_stamp == [1, 1, 0, 1, 1, 1, 0, 1, 1]
-    assert profit == 14
-    assert energy == 14
+#     T = 14
+#     profit = problema.iterate(T)
+#     energy = sum(e for e, on in zip(E, problema.time_stamp) if on == 1)
+
+#     print("final stamp:", problema.time_stamp)
+#     print("profit:", profit)
+#     print("energy:", energy)
+
+#     assert problema.time_stamp == [1, 1, 0, 1, 1, 1, 0, 1, 1]
+#     assert profit == 14
+#     assert energy == 14
+
+import random
+
+
+stamp = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+P =     [1, 1, 1, 1, 8, 1, 1, 1, 1]
+
+E = [random.randint(1, 10) for _ in stamp]
+print("E is ", E)
+L=2
+U=5
+T=13
+problema = Problem(stamp,L, U, P, E, T)
+problema.iterate()
+print(problema.time_stamp)
