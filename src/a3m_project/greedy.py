@@ -1,24 +1,14 @@
-# [00000000] L=2 U=6 P=[273272] E=[9273482]
-
-# Creamos lista ratio para cada index
-# elegimos mejor index
-# se puede ese index? 
-#     si:
-#         creamos todos los rangos posibles con ese index
-#         operamos ratio sumado
-#         elegimos el mejor-> run hecho
-#     no: 
-#         elegimos siguiente mejor index
+import random
 
 
 def time_stamp(N):
-    time_stamp = [0 for _ in range(N)]
-    return time_stamp
+    return [0 for _ in range(N)]
+
 
 class Problem:
-
     def _ratio_of_arrays(self):
-        return [(i, p / e) for i, (p, e) in enumerate(zip(self.P, self.E))]
+        # Avoid division by zero and regularize individual scores.
+        return [(i, p / (e + 0.5)) for i, (p, e) in enumerate(zip(self.P, self.E))]
 
     def __init__(self, time_stamps, L, U, P, E, T):
         self.time_stamp = time_stamps
@@ -32,7 +22,7 @@ class Problem:
             self.ratios, key=lambda item: item[1], reverse=True
         )
         self.used_indexes = {}
-     
+
     def _is_candidate(self, idx):
         stamp = self.time_stamp
         n = len(stamp)
@@ -75,11 +65,10 @@ class Problem:
         return ranges
 
     def iterate(self):
-        # count current profit
+        # Count current profit.
         profit = sum(p for p, on in zip(self.P, self.time_stamp) if on == 1)
 
-        while profit < self.T: 
-
+        while profit < self.T:
             indexes_left = [
                 idx for idx, ratio in self.sorted_ratios
                 if idx not in self.used_indexes
@@ -87,8 +76,8 @@ class Problem:
 
             if not indexes_left:
                 raise ValueError(
-                    f"El greedy se quedó sin índices con beneficio {profit}. "
-                    f"El objetivo era {T}."
+                    f'El greedy se quedó sin índices con beneficio {profit}. '
+                    f'El objetivo era {self.T}.'
                 )
 
             best_index = indexes_left[0]
@@ -100,76 +89,46 @@ class Problem:
 
             ranges = self._possible_ranges(best_index, left, right, is_candidate)
 
-            # chose best range score
+            # Choose the best range using its global profit/energy ratio.
             best_score = -1
             best_range = None
+
             for start, end in ranges:
-                score = sum(self.ratios[i][1] for i in range(start, end + 1))
+                range_profit = sum(self.P[start:end + 1])
+                range_energy = sum(self.E[start:end + 1])
+                score = range_profit / (range_energy + 0.1)
+
                 if score > best_score:
                     best_score = score
                     best_range = (start, end)
 
+            # Apply the selected range and update profit.
             start, end = best_range
             for i in range(start, end + 1):
                 self.time_stamp[i] = 1
+                print(self.time_stamp)
                 self.used_indexes[i] = True
                 profit += self.P[i]
 
         return profit
-            
-             
-            
-# if __name__ == "__main__":
-#     # Index: 0  1  2  3  4  5  6  7  8
-#     stamp = [1, 1, 0, 0, 0, 0, 0, 1, 1]
-#     P =     [1, 1, 1, 1, 8, 1, 1, 1, 1]
-#     E = [2] * len(stamp)
-
-#     problema = Problem(stamp, L=2, U=3, P=P, E=E)
-
-#     idx, ratio = problema.sorted_ratios[0]
-#     assert (idx, ratio) == (4, 4.0)
-
-#     left, right, is_candidate = problema._is_candidate(idx)
-#     assert (left, right, is_candidate) == (3, 5, True)
-
-#     ranges = problema._possible_ranges(idx, left, right, is_candidate)
-#     assert ranges == [(3, 4), (4, 5), (3, 5)]
-
-#     # Index 2 must stay zero because index 1 is already on.
-#     left, right, is_candidate = problema._is_candidate(2)
-#     assert not is_candidate
-#     assert problema._possible_ranges(2, left, right, is_candidate) == []
-
-#     print("tests passed, valid ranges for index 4:", ranges)
 
 
+if __name__ == '__main__':
+    stamp = time_stamp(30)
+    P = [random.randint(0, 10) for _ in stamp]
+    E = [random.randint(0, 10) for _ in stamp]
+    print('E is ', E)
+    print('P is ', P)
 
+    L = 1
+    U = 7
+    T = 100
 
-#     T = 14
-#     profit = problema.iterate(T)
-#     energy = sum(e for e, on in zip(E, problema.time_stamp) if on == 1)
+    problema = Problem(stamp, L, U, P, E, T)
+    profit = problema.iterate()
+    energy = sum(e for e, on in zip(E, problema.time_stamp) if on == 1)
 
-#     print("final stamp:", problema.time_stamp)
-#     print("profit:", profit)
-#     print("energy:", energy)
-
-#     assert problema.time_stamp == [1, 1, 0, 1, 1, 1, 0, 1, 1]
-#     assert profit == 14
-#     assert energy == 14
-
-import random
-
-
-stamp = time_stamp(150)
-P = [random.randint(1, 10) for _ in stamp]
-E = [random.randint(1, 10) for _ in stamp]
-print("E is ", E)
-print("P is ", P)
-L=7
-U=16
-T=500
-problema = Problem(stamp,L, U, P, E, T)
-problema.iterate()
-print("--------------------")
-print("RESULTADO:", problema.time_stamp)
+    print('--------------------')
+    print('RESULTADO:', problema.time_stamp)
+    print('PROFIT:', profit)
+    print('ENERGY:', energy)
