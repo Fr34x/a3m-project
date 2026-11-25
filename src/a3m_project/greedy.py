@@ -114,13 +114,14 @@ class Problem:
 
 
 if __name__ == '__main__':
+    random.seed(140)
     stamp = time_stamp(30)
     P = [random.randint(0, 10) for _ in stamp]
     E = [random.randint(0, 10) for _ in stamp]
     print('E is ', E)
     print('P is ', P)
 
-    L = 1
+    L = 2
     U = 7
     T = 100
 
